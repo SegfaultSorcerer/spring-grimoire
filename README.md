@@ -1,164 +1,178 @@
-# spring-java-commands
+<div align="center">
 
-A curated collection of [Claude Code](https://claude.ai/code) skills (slash commands) and hooks for Java/Spring Boot development.
+# spring-grimoire
 
-> **First-of-its-kind**: Purpose-built Claude Code automation for the Java/Spring ecosystem.
+**A spellbook of [Claude Code](https://claude.ai/code) skills and hooks for Java/Spring Boot development.**
 
-## What's Included
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-cc785c?logo=anthropic&logoColor=white)](https://claude.ai/code)
 
-### Skills (Slash Commands)
+7 slash commands. 4 automation hooks. Zero config to get started.
 
-| Skill | Description |
-|-------|-------------|
-| `/spring-review` | Spring Boot code review — security, performance, bean lifecycle |
-| `/spring-migration` | Spring Boot 2→3 / javax→jakarta migration analysis |
-| `/api-design` | REST API design review against best practices |
-| `/jpa-audit` | JPA entity audit — N+1 queries, missing indexes, lazy loading |
-| `/security-check` | Spring Security configuration review |
-| `/test-gen [file]` | Generate JUnit 5 tests with Mockito/Testcontainers |
-| `/dockerfile` | Generate optimized multi-stage Dockerfiles |
+[Installation](#installation) · [Skills](#skills) · [Hooks](#hooks) · [Configuration](#configuration)
 
-### Hooks (Automatic)
+</div>
 
-| Hook | Trigger | Description | Opt-in |
-|------|---------|-------------|--------|
-| Block prod config | Before file write | Prevents AI edits to `application-prod.*` files | Always on |
-| Auto-format | After file edit | Formats Java files with google-java-format | Yes |
-| Auto-compile | After file edit | Runs `mvn compile` / `gradle compileJava` | Yes |
-| Checkstyle | After file edit | Runs Checkstyle (and optionally SpotBugs) | Yes |
+---
+
+## Why?
+
+Claude Code is powerful out of the box — but it doesn't know the Spring ecosystem's pitfalls. This plugin adds that knowledge: N+1 query detection, Spring Security misconfigurations, javax→jakarta migration paths, and more — all as slash commands you can invoke on any Spring project.
+
+## Skills
+
+> Slash commands that analyze your code and generate artifacts.
+
+| Skill | What it does |
+|:------|:-------------|
+| `/spring-review` | Three-pillar code review: **Security**, **Performance**, **Bean Lifecycle** |
+| `/spring-migration` | Spring Boot 2→3 migration analysis with javax→jakarta mappings |
+| `/api-design` | REST API review: naming, HTTP verbs, status codes, RFC 7807 errors |
+| `/jpa-audit` | Entity audit for N+1 queries, missing indexes, lazy loading traps |
+| `/security-check` | Spring Security config review — filter chains, CORS, CSRF, JWT |
+| `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository patterns |
+| `/dockerfile` | Multi-stage Dockerfile with layer caching, JVM flags, non-root user |
+
+<details>
+<summary><b>Skill details</b></summary>
+
+### `/spring-review`
+
+Performs a structured code review across three pillars:
+- **Security** — input validation, SQL injection, hardcoded secrets, actuator exposure
+- **Performance** — missing `@Cacheable`, unbounded queries, eager fetching
+- **Bean Lifecycle** — circular dependencies, scope mismatches, field injection
+
+Outputs a findings table with severity levels (`CRITICAL` / `WARNING` / `INFO`).
+
+### `/test-gen [file]`
+
+Pass a file path and it generates tests matching the class type:
+
+| Class Type | Test Strategy |
+|:-----------|:-------------|
+| `@RestController` | `@WebMvcTest` + `MockMvc` |
+| `@Service` | `@ExtendWith(MockitoExtension.class)` + `@Mock` / `@InjectMocks` |
+| `@Repository` | `@DataJpaTest` + Testcontainers |
+
+Uses AssertJ, `@Nested` grouping, and `methodName_state_expected` naming.
+
+### `/jpa-audit`
+
+Scans entities and repositories for:
+- N+1 query patterns → recommends `@EntityGraph`, `JOIN FETCH`, `@BatchSize`
+- Missing indexes on filtered/sorted columns
+- Lazy loading outside transactions (entities as API responses)
+- Relationship anti-patterns (`CascadeType.ALL` on `@ManyToOne`, missing `mappedBy`)
+
+### `/spring-migration`
+
+Generates a migration report covering:
+- `javax.*` → `jakarta.*` namespace changes (full mapping table)
+- Spring Security 6 API changes (`authorizeRequests` → `authorizeHttpRequests`)
+- Configuration property renames (`spring.redis.*` → `spring.data.redis.*`)
+- Behavior changes (trailing slash, `PathPatternParser`)
+- Effort estimate per category
+
+### `/security-check`
+
+Reviews security posture and rates it `RED` / `YELLOW` / `GREEN`:
+- Filter chain ordering and default-deny rules
+- CORS policy (wildcard origins, credentials)
+- CSRF protection (disabled without justification)
+- Password encoding, session management
+- JWT validation (algorithm, expiry, audience)
+- Security headers (CSP, HSTS, X-Frame-Options)
+
+### `/api-design`
+
+Builds an endpoint inventory and checks:
+- URL naming (nouns, plural, lowercase-hyphenated)
+- HTTP verb correctness and idempotency
+- Response status codes (no "200 for everything")
+- Error format (RFC 7807 Problem Details)
+- Pagination on collection endpoints
+
+### `/dockerfile`
+
+Generates production-ready container artifacts:
+- Multi-stage build with dependency layer caching
+- JVM container flags (`-XX:MaxRAMPercentage=75.0`)
+- Non-root user, `.dockerignore`
+- Health check via Actuator (if present)
+- `docker-compose.yml` snippet for local dev
+
+</details>
+
+## Hooks
+
+> Automation that runs before or after Claude Code tool calls.
+
+| Hook | Event | What it does | Opt-in |
+|:-----|:------|:-------------|:-------|
+| **Prod config guard** | `PreToolUse` | Blocks writes to `application-prod.*` files | Always on |
+| **Auto-format** | `PostToolUse` | Formats `.java` files with google-java-format | Flag file |
+| **Auto-compile** | `PostToolUse` | Runs `mvn compile` / `gradle compileJava` | Flag file |
+| **Checkstyle** | `PostToolUse` | Runs Checkstyle (+ optional SpotBugs) | Flag file |
 
 ## Installation
 
-### As Claude Code Plugin
+### Plugin (recommended)
 
 ```bash
-claude plugin add SegfaultSorcerer/spring-java-commands
+claude plugin add SegfaultSorcerer/spring-grimoire
 ```
 
-### Manual (Copy into your project)
+### Manual
 
 ```bash
-git clone https://github.com/SegfaultSorcerer/spring-java-commands.git
-cp -r spring-java-commands/skills/ your-project/.claude/skills/
-cp -r spring-java-commands/hooks/ your-project/.claude/
+git clone https://github.com/SegfaultSorcerer/spring-grimoire.git
+cp -r spring-grimoire/skills/ your-project/.claude/skills/
+cp -r spring-grimoire/hooks/ your-project/.claude/
 ```
 
-## Configuration
-
-### Enabling Optional Hooks
-
-Opt-in hooks are activated by creating flag files in your project root:
-
-```bash
-# Enable auto-formatting
-mkdir -p .spring-java-commands
-touch .spring-java-commands/auto-format.enabled
-
-# Enable auto-compilation
-touch .spring-java-commands/auto-compile.enabled
-
-# Enable Checkstyle
-touch .spring-java-commands/checkstyle.enabled
-
-# Enable SpotBugs (requires Checkstyle to be enabled)
-touch .spring-java-commands/spotbugs.enabled
-```
-
-Add `.spring-java-commands/` to your `.gitignore` — these are local developer preferences.
-
-### Disabling the Prod Config Guard
-
-The `block-prod-config` hook is always active by design. To disable it, remove the corresponding entry from `hooks/hooks.json`.
-
-## Prerequisites
-
-Run the included check script to verify your environment:
+### Prerequisites
 
 ```bash
 bash scripts/check-prerequisites.sh
 ```
 
-**Required:**
-- Java 17+
-- Maven or Gradle
-- `jq` (used by hook scripts)
+| Required | Optional |
+|:---------|:---------|
+| Java 17+ | `google-java-format` |
+| Maven or Gradle | Docker |
+| `jq` | |
 
-**Optional:**
-- `google-java-format` (for auto-format hook)
-- Docker (for `/dockerfile` skill)
+## Configuration
 
-## Skills in Detail
+### Enabling opt-in hooks
 
-### `/spring-review`
+Create flag files in your project root to activate hooks:
 
-Performs a three-pillar code review:
-- **Security**: input validation, SQL injection, hardcoded secrets, actuator exposure
-- **Performance**: missing caching, unbounded queries, eager fetching
-- **Bean Lifecycle**: circular dependencies, scope mismatches, field injection
+```bash
+mkdir -p .spring-grimoire
+touch .spring-grimoire/auto-format.enabled    # google-java-format after edits
+touch .spring-grimoire/auto-compile.enabled   # compile after edits
+touch .spring-grimoire/checkstyle.enabled     # checkstyle after edits
+touch .spring-grimoire/spotbugs.enabled       # spotbugs (requires checkstyle)
+```
 
-Outputs a findings table with severity levels (CRITICAL / WARNING / INFO).
+> Add `.spring-grimoire/` to your `.gitignore` — these are local developer preferences.
 
-### `/test-gen [file]`
+### Disabling the prod config guard
 
-Generates tests based on the class type:
-- `@RestController` → `@WebMvcTest` with `MockMvc`
-- `@Service` → `@ExtendWith(MockitoExtension.class)` with `@Mock`/`@InjectMocks`
-- `@Repository` → `@DataJpaTest` with Testcontainers
-
-Uses AssertJ assertions and follows `methodName_stateUnderTest_expectedBehavior` naming.
-
-### `/jpa-audit`
-
-Scans entities and repositories for:
-- N+1 query patterns (with solutions: `@EntityGraph`, `JOIN FETCH`, `@BatchSize`)
-- Missing database indexes on filtered/sorted columns
-- Lazy loading issues (entities returned directly from controllers)
-- Relationship anti-patterns (missing `mappedBy`, wrong cascade types)
-
-### `/spring-migration`
-
-Generates a complete migration report:
-- javax→jakarta namespace changes (with file list)
-- Spring Security 6 API changes
-- Configuration property renames
-- Behavior changes (trailing slash, PathPatternParser)
-- Effort estimate
-
-### `/security-check`
-
-Reviews security posture across:
-- Filter chain configuration and matcher ordering
-- CORS/CSRF settings
-- Authentication and password encoding
-- JWT/OAuth2 validation
-- Security headers (CSP, HSTS, X-Frame-Options)
-
-Rates overall posture as RED / YELLOW / GREEN.
-
-### `/api-design`
-
-Reviews REST API design:
-- URL naming conventions (nouns, plural, lowercase-hyphenated)
-- HTTP verb correctness and idempotency
-- Response status codes and error format (RFC 7807)
-- Pagination and content negotiation
-
-### `/dockerfile`
-
-Generates a production-ready Dockerfile with:
-- Multi-stage build (dependency caching)
-- JVM container flags (`-XX:MaxRAMPercentage`)
-- Non-root user
-- Health check (if Actuator is present)
-- Matching `.dockerignore`
+The `block-prod-config` hook is always active by design. To disable it, remove the entry from `hooks/hooks.json`.
 
 ## Contributing
 
-Contributions welcome! Please open an issue or PR.
+Contributions welcome! Open an issue or submit a PR.
 
-When adding a new skill:
+To add a new skill:
+
 1. Create `skills/<skill-name>/SKILL.md` with YAML frontmatter
-2. Add detailed reference material in `skills/<skill-name>/references/`
+2. Add reference material in `skills/<skill-name>/references/`
 3. Update this README
 
 ## License
