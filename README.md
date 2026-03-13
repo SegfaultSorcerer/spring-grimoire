@@ -143,7 +143,17 @@ bash scripts/check-prerequisites.sh
 |:---------|:---------|
 | Java 17+ | `google-java-format` |
 | Maven or Gradle | Docker |
-| `jq` | |
+| `jq` (macOS/Linux only) | |
+
+### Windows
+
+Hooks work natively on Windows using PowerShell. For manual installation, use `hooks.windows.json` instead:
+
+```powershell
+Copy-Item hooks\hooks.windows.json -Destination hooks\hooks.json -Force
+```
+
+When installed as a plugin, the correct hooks file is selected automatically based on your OS.
 
 ## Configuration
 
