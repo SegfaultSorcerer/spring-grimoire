@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Check prerequisites for spring-java-commands plugin
+# Check prerequisites for spring-grimoire plugin
 
 set -euo pipefail
 
@@ -14,7 +14,7 @@ fail() { echo -e "  ${RED}[MISSING]${NC} $1"; ERRORS=$((ERRORS + 1)); }
 
 ERRORS=0
 
-echo "Checking prerequisites for spring-java-commands..."
+echo "Checking prerequisites for spring-grimoire..."
 echo ""
 
 # Required

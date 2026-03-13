@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PostToolUse hook: Run Checkstyle after Java file edits.
-# Requires enable flag: .spring-java-commands/checkstyle.enabled
+# Requires enable flag: .spring-grimoire/checkstyle.enabled
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ fi
 
 # Check enable flag
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
-if [ ! -f "$PROJECT_DIR/.spring-java-commands/checkstyle.enabled" ]; then
+if [ ! -f "$PROJECT_DIR/.spring-grimoire/checkstyle.enabled" ]; then
   exit 0
 fi
 
@@ -46,7 +46,7 @@ else
 fi
 
 # Optional: SpotBugs (separate flag since it's slower)
-if [ -f "$PROJECT_DIR/.spring-java-commands/spotbugs.enabled" ]; then
+if [ -f "$PROJECT_DIR/.spring-grimoire/spotbugs.enabled" ]; then
   if [ -f "pom.xml" ]; then
     OUTPUT=$(mvn spotbugs:check -q 2>&1 | tail -30) || {
       echo "SpotBugs issues found:" >&2

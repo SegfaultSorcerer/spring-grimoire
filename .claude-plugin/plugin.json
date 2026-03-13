@@ -1,12 +1,12 @@
 {
-  "name": "spring-java-commands",
+  "name": "spring-grimoire",
   "version": "1.0.0",
   "description": "Curated Claude Code skills and hooks for Java/Spring Boot development. Code reviews, migration assistance, JPA auditing, security checks, test generation, and auto-formatting.",
   "author": {
     "name": "SegfaultSorcerer",
     "url": "https://github.com/SegfaultSorcerer"
   },
-  "repository": "https://github.com/SegfaultSorcerer/spring-java-commands",
+  "repository": "https://github.com/SegfaultSorcerer/spring-grimoire",
   "license": "MIT",
   "keywords": ["java", "spring", "spring-boot", "jpa", "security", "testing", "docker"]
 }

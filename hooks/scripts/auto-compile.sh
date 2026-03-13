@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PostToolUse hook: Auto-compile after Java file changes.
-# Requires enable flag: .spring-java-commands/auto-compile.enabled
+# Requires enable flag: .spring-grimoire/auto-compile.enabled
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ fi
 
 # Check enable flag
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
-if [ ! -f "$PROJECT_DIR/.spring-java-commands/auto-compile.enabled" ]; then
+if [ ! -f "$PROJECT_DIR/.spring-grimoire/auto-compile.enabled" ]; then
   exit 0
 fi
 
