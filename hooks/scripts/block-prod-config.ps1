@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$input_json = $input | ConvertFrom-Json
+$input_json = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $filePath = $input_json.tool_input.file_path
 
 if (-not $filePath) { exit 0 }
