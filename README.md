@@ -147,13 +147,13 @@ bash scripts/check-prerequisites.sh
 
 ### Windows
 
-Hooks work natively on Windows using PowerShell. For manual installation, use `hooks.windows.json` instead:
+The default `hooks.json` uses Bash scripts. If you have Git for Windows installed (which includes Git Bash), hooks work out of the box — no changes needed.
+
+Without Git Bash, use the PowerShell variants instead:
 
 ```powershell
 Copy-Item hooks\hooks.windows.json -Destination hooks\hooks.json -Force
 ```
-
-When installed as a plugin, the correct hooks file is selected automatically based on your OS.
 
 ## Configuration
 
