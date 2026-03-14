@@ -32,7 +32,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 | `/api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
 | `/jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
 | `/security-check` | Spring Security audit — filter chains, CORS, CSRF, JWT, IDOR, dev/debug traps |
-| `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository patterns |
+| `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository, security tests |
 | `/dockerfile` | Multi-stage Dockerfile with layered JAR, JVM flags, non-root user, signal handling |
 
 <details>
@@ -72,11 +72,30 @@ Pass a file path and it generates tests matching the class type:
 
 | Class Type | Test Strategy |
 |:-----------|:-------------|
-| `@RestController` | `@WebMvcTest` + `MockMvc` |
+| `@RestController` | `@WebMvcTest` + `MockMvc` + `@WithMockUser` for secured endpoints |
 | `@Service` | `@ExtendWith(MockitoExtension.class)` + `@Mock` / `@InjectMocks` |
-| `@Repository` | `@DataJpaTest` + Testcontainers |
+| `@Repository` | `@DataJpaTest` + Testcontainers (custom queries only, not inherited CRUD) |
 
-Uses AssertJ, `@Nested` grouping, and `methodName_state_expected` naming.
+Uses AssertJ, `@Nested` grouping, `methodName_state_expected` naming, and `given/when/then` structure.
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 3.2 project with a Controller (6 endpoints, `@PreAuthorize`), a Service (7 methods), and a Repository (5 custom queries).
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 100.0% | 78.6% | **+21.4%** |
+| Avg. Time | 58.0s | 56.2s | +1.8s |
+| Avg. Tokens | 19,113 | 15,172 | +3,941 |
+
+Key advantages with the skill:
+- **`methodName_state_expected` naming** in 3/3 runs (vs. 0/3 without — baseline uses `shouldVerb` style)
+- **`given/when/then` comments** in 3/3 runs (vs. 0/3 without)
+- **Repository: tests only custom queries** in 3/3 runs (vs. 0/3 — baseline wastes tests on inherited CRUD)
+- **`@ParameterizedTest`** for similar inputs in 3/3 runs (vs. 0/3 without)
+
+</details>
 
 ### `/jpa-audit`
 
