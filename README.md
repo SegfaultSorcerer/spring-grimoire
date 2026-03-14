@@ -121,8 +121,17 @@ Generates production-ready container artifacts:
 
 ### Plugin (recommended)
 
-```bash
-claude plugin add SegfaultSorcerer/spring-grimoire
+From within Claude Code:
+
+```
+/plugin marketplace add SegfaultSorcerer/spring-grimoire
+/plugin install spring-grimoire@SegfaultSorcerer-spring-grimoire
+```
+
+Or install from a local clone:
+
+```
+/plugin install ./spring-grimoire
 ```
 
 ### Manual
