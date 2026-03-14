@@ -30,7 +30,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 | `/spring-review` | Four-pillar code review: **Security**, **Performance**, **Transactions**, **Bean Lifecycle** |
 | `/spring-migration` | Spring Boot 2→3 migration analysis with javax→jakarta mappings |
 | `/api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
-| `/jpa-audit` | Entity audit for N+1 queries, missing indexes, lazy loading traps |
+| `/jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
 | `/security-check` | Spring Security config review — filter chains, CORS, CSRF, JWT |
 | `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository patterns |
 | `/dockerfile` | Multi-stage Dockerfile with layer caching, JVM flags, non-root user |
@@ -81,10 +81,31 @@ Uses AssertJ, `@Nested` grouping, and `methodName_state_expected` naming.
 ### `/jpa-audit`
 
 Scans entities and repositories for:
-- N+1 query patterns → recommends `@EntityGraph`, `JOIN FETCH`, `@BatchSize`
-- Missing indexes on filtered/sorted columns
-- Lazy loading outside transactions (entities as API responses)
-- Relationship anti-patterns (`CascadeType.ALL` on `@ManyToOne`, missing `mappedBy`)
+- N+1 query patterns → recommends `@EntityGraph`, `JOIN FETCH`, `@BatchSize`, DTO projections
+- `@ManyToOne` EAGER default trap — the most common JPA surprise
+- Missing indexes on filtered/sorted/joined columns
+- Lazy loading outside transactions (entities as API responses, `open-in-view`)
+- Relationship anti-patterns (`CascadeType.ALL` on `@ManyToOne`, missing `mappedBy`, `List` vs `Set`)
+- ID generation & batching (`GenerationType.IDENTITY` blocking batch inserts)
+- Bulk update anti-patterns (load-modify-save vs `@Modifying @Query`)
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 3.2 fixture project with ~30 intentional JPA issues across 6 entities, 3 repositories, and 1 service.
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 97.9% | 81.3% | **+16.6%** |
+| Avg. Time | 101.4s | 82.5s | +18.9s |
+| Avg. Tokens | 23,505 | 17,711 | +5,794 |
+
+Key advantages with the skill:
+- **Consistent `Severity|Entity|Issue|Impact|Fix` table** in 3/3 runs (vs. 0/3 without)
+- **Quantified impact** — "6001 queries", "500ms+ per query" consistently included
+- **`@ManyToOne` EAGER default** flagged on all instances (vs. some without)
+
+</details>
 
 ### `/spring-migration`
 

@@ -191,6 +191,69 @@ When `true`: Hibernate session stays open through the entire HTTP request, inclu
 - Connection held longer than necessary
 - Hard-to-debug performance issues in production
 
+## @ManyToOne Defaults to EAGER
+
+Unlike `@OneToMany` and `@ManyToMany` (which default to `LAZY`), `@ManyToOne` and `@OneToOne` default to `FetchType.EAGER`. This is a common surprise.
+
+```java
+// BAD — loads Product eagerly on every OrderItem query
+@Entity class OrderItem {
+    @ManyToOne // defaults to FetchType.EAGER!
+    private Product product;
+}
+
+// GOOD — explicitly set LAZY
+@Entity class OrderItem {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+}
+```
+
+## List vs Set for @ManyToMany
+
+```java
+// BAD — Hibernate deletes ALL join table rows and re-inserts on any change
+@ManyToMany
+private List<Role> roles;
+
+// GOOD — Hibernate only inserts/deletes the changed rows
+@ManyToMany
+private Set<Role> roles;
+```
+
+This happens because `List` preserves order, so Hibernate cannot determine which element was added/removed without clearing and rebuilding the entire association.
+
+## @NaturalId for Business Keys
+
+```java
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
+
+    @NaturalId
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    // Use email (natural/business key) for equals/hashCode, not id
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return Objects.equals(email, user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
+    }
+}
+```
+
+`@NaturalId` enables `session.byNaturalId(User.class).using("email", email).load()` with optional second-level cache support.
+
 ## Bulk Operations
 
 ### Anti-Pattern: Loading Entities for Mass Update
