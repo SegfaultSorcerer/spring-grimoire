@@ -1,6 +1,7 @@
 ---
 name: dockerfile
 description: Generate an optimized multi-stage Dockerfile for a Spring Boot application with layer caching, JVM container flags, non-root user, and health checks.
+allowed-tools: Bash(*)
 ---
 
 # Generate Spring Boot Dockerfile

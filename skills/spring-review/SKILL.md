@@ -2,6 +2,7 @@
 name: spring-review
 description: Spring Boot code review focusing on security vulnerabilities, performance issues, and bean lifecycle problems. Use when reviewing Spring Boot controllers, services, repositories, or configuration classes.
 argument-hint: "[file-or-directory]"
+allowed-tools: Bash(*)
 ---
 
 # Spring Boot Code Review

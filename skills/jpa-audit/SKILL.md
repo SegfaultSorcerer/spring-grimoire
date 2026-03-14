@@ -2,6 +2,7 @@
 name: jpa-audit
 description: Audit JPA entities for N+1 query problems, missing database indexes, lazy loading issues, and relationship anti-patterns. Use when reviewing entity classes, repositories, or investigating database performance.
 argument-hint: "[entity-or-directory]"
+allowed-tools: Bash(*)
 ---
 
 # JPA Entity Audit

@@ -2,6 +2,7 @@
 name: api-design
 description: Review REST API design against best practices including URL naming, HTTP verbs, status codes, error responses, pagination, and versioning.
 argument-hint: "[controller-file]"
+allowed-tools: Bash(*)
 ---
 
 # REST API Design Review

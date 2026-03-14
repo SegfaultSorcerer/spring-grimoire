@@ -1,6 +1,7 @@
 ---
 name: spring-migration
 description: Analyze a Spring Boot project for migration from Spring Boot 2 to 3 and javax to jakarta namespace changes. Generates a migration report with file-by-file changes needed.
+allowed-tools: Bash(*)
 ---
 
 # Spring Boot Migration Analysis

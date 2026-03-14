@@ -2,6 +2,7 @@
 name: test-gen
 description: Generate JUnit 5 tests with Mockito and Testcontainers for a given Java class. Detects class type (Controller, Service, Repository) and applies the appropriate testing strategy.
 argument-hint: "[class-file-path]"
+allowed-tools: Bash(*)
 ---
 
 # Generate Tests

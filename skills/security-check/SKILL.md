@@ -1,6 +1,7 @@
 ---
 name: security-check
 description: Review Spring Security configuration for vulnerabilities, misconfigured filter chains, CORS/CSRF issues, and authentication/authorization gaps.
+allowed-tools: Bash(*)
 ---
 
 # Spring Security Check
