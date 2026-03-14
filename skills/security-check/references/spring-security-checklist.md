@@ -188,3 +188,54 @@ management.endpoints.web.exposure.include=health,info,metrics,prometheus
 management.endpoint.health.show-details=when-authorized
 management.server.port=9090  # Separate management port
 ```
+
+## @Secured Prefix Trap
+
+```java
+// BAD — silently fails: "ADMIN" is not a valid authority, Spring expects "ROLE_ADMIN"
+@Secured("ADMIN")
+@DeleteMapping("/users/{id}")
+public void deleteUser(@PathVariable Long id) { ... }
+
+// GOOD — correct prefix
+@Secured("ROLE_ADMIN")
+@DeleteMapping("/users/{id}")
+public void deleteUser(@PathVariable Long id) { ... }
+
+// BETTER — @PreAuthorize doesn't require the ROLE_ prefix
+@PreAuthorize("hasRole('ADMIN')")
+@DeleteMapping("/users/{id}")
+public void deleteUser(@PathVariable Long id) { ... }
+```
+
+## Dangerous Dev/Debug Settings
+
+These settings must never be active in production:
+
+```properties
+# H2 Console — gives unauthenticated database access
+spring.h2.console.enabled=false  # or remove entirely
+
+# Security debug — logs tokens, headers, full filter chain
+spring.security.debug=false  # or remove entirely
+
+# Actuator — never expose everything
+management.endpoints.web.exposure.include=health,info  # NOT "*"
+```
+
+To prevent these from reaching production, use profile-specific configs:
+```yaml
+# application-dev.yml — dev only
+spring:
+  h2:
+    console:
+      enabled: true
+  security:
+    debug: true
+
+# application-prod.yml — production
+spring:
+  h2:
+    console:
+      enabled: false
+```

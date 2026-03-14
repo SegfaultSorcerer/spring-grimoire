@@ -31,7 +31,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 | `/spring-migration` | Spring Boot 2→3 migration analysis with javax→jakarta mappings |
 | `/api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
 | `/jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
-| `/security-check` | Spring Security config review — filter chains, CORS, CSRF, JWT |
+| `/security-check` | Spring Security audit — filter chains, CORS, CSRF, JWT, IDOR, dev/debug traps |
 | `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository patterns |
 | `/dockerfile` | Multi-stage Dockerfile with layer caching, JVM flags, non-root user |
 
@@ -119,12 +119,32 @@ Generates a migration report covering:
 ### `/security-check`
 
 Reviews security posture and rates it `RED` / `YELLOW` / `GREEN`:
-- Filter chain ordering and default-deny rules
+- Filter chain ordering, default-deny rules, matcher precedence
 - CORS policy (wildcard origins, credentials)
 - CSRF protection (disabled without justification)
-- Password encoding, session management
-- JWT validation (algorithm, expiry, audience)
+- Password encoding (`NoOpPasswordEncoder` detection), session management
+- Authorization gaps (IDOR, mass assignment, `@Secured` prefix trap)
+- JWT validation (algorithm, expiry, audience, secret strength)
 - Security headers (CSP, HSTS, X-Frame-Options)
+- Dangerous dev/debug settings (H2 console, `security.debug`, actuator exposure)
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 3.2 fixture project with ~30 intentional security vulnerabilities across config, controllers, and JWT handling.
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 100.0% | 77.8% | **+22.2%** |
+| Avg. Time | 105.5s | 85.6s | +19.9s |
+| Avg. Tokens | 24,045 | 17,395 | +6,650 |
+
+Key advantages with the skill:
+- **Perfect 100% pass rate** across all 3 test cases — best result of any skill
+- **RED/YELLOW/GREEN rating** and **OWASP references** in 3/3 runs (vs. 0/3 without)
+- **Catches subtle issues** baseline misses: `@Secured` wrong prefix, `@EnableMethodSecurity`, `security.debug`
+
+</details>
 
 ### `/api-design`
 
