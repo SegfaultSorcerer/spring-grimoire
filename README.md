@@ -124,15 +124,8 @@ Generates production-ready container artifacts:
 From within Claude Code:
 
 ```
-/plugin marketplace add https://github.com/SegfaultSorcerer/spring-grimoire.git
-```
-
-Then install via the `/plugin` menu under **Discover**.
-
-Or from a local clone:
-
-```
-/plugin marketplace add ./spring-grimoire
+/plugin marketplace add SegfaultSorcerer/spring-grimoire
+/plugin install spring-grimoire@spring-grimoire
 ```
 
 ### Manual
