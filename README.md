@@ -29,7 +29,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 |:------|:-------------|
 | `/spring-review` | Four-pillar code review: **Security**, **Performance**, **Transactions**, **Bean Lifecycle** |
 | `/spring-migration` | Spring Boot 2→3 migration analysis with javax→jakarta mappings |
-| `/api-design` | REST API review: naming, HTTP verbs, status codes, RFC 7807 errors |
+| `/api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
 | `/jpa-audit` | Entity audit for N+1 queries, missing indexes, lazy loading traps |
 | `/security-check` | Spring Security config review — filter chains, CORS, CSRF, JWT |
 | `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository patterns |
@@ -108,11 +108,31 @@ Reviews security posture and rates it `RED` / `YELLOW` / `GREEN`:
 ### `/api-design`
 
 Builds an endpoint inventory and checks:
-- URL naming (nouns, plural, lowercase-hyphenated)
-- HTTP verb correctness and idempotency
-- Response status codes (no "200 for everything")
-- Error format (RFC 7807 Problem Details)
-- Pagination on collection endpoints
+- URL naming (nouns, plural, lowercase-hyphenated, no trailing slashes, no file extensions)
+- HTTP verb correctness and idempotency (GET must not mutate, DELETE must be idempotent)
+- Response status codes (201 for creation, 204 for deletion, 404 for missing resources)
+- Error format (RFC 7807 Problem Details via `@RestControllerAdvice`)
+- Pagination on collection endpoints (with default/max page size)
+- Versioning consistency across controllers
+- Request/Response DTO separation (no JPA entity exposure)
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 3.2 fixture project with ~25 intentional API design violations across 3 controllers.
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 97.8% | 77.8% | **+20.0%** |
+| Avg. Time | 92.5s | 80.1s | +12.4s |
+| Avg. Tokens | 22,012 | 16,751 | +5,261 |
+
+Key advantages with the skill:
+- **Per-controller endpoint inventory table** in 3/3 runs (vs. 0/3 without)
+- **Top 3 prioritized action list** in 3/3 runs (vs. 0/3 without)
+- **RFC 7807 ProblemDetail** code examples in recommendations
+
+</details>
 
 ### `/dockerfile`
 

@@ -1,13 +1,13 @@
 ---
 name: api-design
-description: Review REST API design against best practices including URL naming, HTTP verbs, status codes, error responses, pagination, and versioning.
+description: Review REST API design against best practices — URL naming, HTTP verbs, status codes, error handling, pagination, versioning, and idempotency. Use this skill whenever the user wants to review, check, or improve their REST API, endpoints, or controller design — even if they just say "passt meine API so?", "check my endpoints", "schau dir mal die Controller an", or ask about REST conventions.
 argument-hint: "[controller-file]"
 allowed-tools: Bash(*)
 ---
 
 # REST API Design Review
 
-Review REST API design against industry best practices.
+Review REST API design against industry best practices. Read [rest-api-conventions.md](references/rest-api-conventions.md) for code examples (RFC 7807 error handler, pagination patterns, OpenAPI annotations, versioning strategies) before starting your review — the reference contains implementation patterns you should recommend.
 
 ## Scope
 
@@ -17,17 +17,17 @@ Otherwise, review all controllers.
 ## Project Context
 
 Endpoint mappings:
-!`grep -rn "@RequestMapping\|@GetMapping\|@PostMapping\|@PutMapping\|@DeleteMapping\|@PatchMapping" --include="*.java" . 2>/dev/null | head -50`
+!`grep -rn "@RequestMapping\|@GetMapping\|@PostMapping\|@PutMapping\|@DeleteMapping\|@PatchMapping" --include="*.java" --include="*.kt" . 2>/dev/null | head -50`
 
 Response entities and DTOs:
-!`grep -rln "ResponseEntity\|@ResponseStatus\|@ResponseBody" --include="*.java" . 2>/dev/null | head -15`
+!`grep -rln "ResponseEntity\|@ResponseStatus\|@ResponseBody" --include="*.java" --include="*.kt" . 2>/dev/null | head -15`
 
 Exception handlers:
-!`grep -rn "@ExceptionHandler\|@ControllerAdvice\|@RestControllerAdvice" --include="*.java" . 2>/dev/null | head -10`
+!`grep -rn "@ExceptionHandler\|@ControllerAdvice\|@RestControllerAdvice" --include="*.java" --include="*.kt" . 2>/dev/null | head -10`
 
 ## Review Dimensions
 
-### URL Naming
+### 1. URL Naming
 
 1. **Use nouns, not verbs**: `/users` not `/getUsers`, `/orders/{id}` not `/fetchOrder/{id}`
 2. **Plural resource names**: `/users`, `/products`, `/orders` — consistently plural
@@ -37,7 +37,7 @@ Exception handlers:
 6. **Max 2 levels of nesting**: Beyond that, use query parameters or top-level resources
 7. **No file extensions**: `/users` not `/users.json`
 
-### HTTP Verbs
+### 2. HTTP Verbs & Idempotency
 
 | Operation | Verb | Status Code | Idempotent |
 |-----------|------|-------------|------------|
@@ -48,23 +48,24 @@ Exception handlers:
 | Partial update | PATCH | 200, 404 | No |
 | Delete | DELETE | 204, 404 | Yes |
 
-1. **GET must not mutate state**: No side effects, no database writes
+1. **GET must not mutate state**: No side effects, no database writes. A GET that triggers a write (even logging to DB) is a design violation because clients and intermediaries (caches, proxies) assume GET is safe to retry
 2. **POST for creation**: Return `201 Created` with `Location` header pointing to the new resource
-3. **PUT vs PATCH**: PUT replaces the entire resource, PATCH updates specific fields
+3. **PUT vs PATCH**: PUT replaces the entire resource, PATCH updates specific fields — using PUT for partial updates leads to accidental field nulling
 4. **DELETE returns 204**: No body needed on successful deletion
+5. **Idempotency violations**: PUT and DELETE must produce the same result when called multiple times. Check that PUT handlers don't create new resources on each call, and DELETE handlers don't fail on already-deleted resources (return 204 or 404, not 500)
 
-### Response Status Codes
+### 3. Response Status Codes
 
-1. **Don't return 200 for everything**: Use appropriate status codes
+1. **Don't return 200 for everything**: Every endpoint that just returns 200 is hiding information from the client. Check for POST returning 200 instead of 201, DELETE returning 200 instead of 204
 2. **400 for validation errors**: With details about which fields failed
-3. **401 vs 403**: 401 = not authenticated, 403 = authenticated but not authorized
-4. **404 for missing resources**: Not 200 with empty body
-5. **409 for conflicts**: Duplicate entries, concurrent modification
+3. **401 vs 403**: 401 = not authenticated (who are you?), 403 = authenticated but not authorized (you can't do that). Mixing these up confuses client-side error handling
+4. **404 for missing resources**: Not 200 with empty body or null
+5. **409 for conflicts**: Duplicate entries, concurrent modification, optimistic locking failures
 6. **422 for semantic errors**: Request is syntactically valid but semantically wrong
 
-### Error Response Format
+### 4. Error Response Format
 
-Follow RFC 7807 (Problem Details for HTTP APIs):
+Follow RFC 7807 (Problem Details for HTTP APIs) — Spring Boot 3.x has built-in support via `ProblemDetail`:
 
 ```json
 {
@@ -79,36 +80,42 @@ Follow RFC 7807 (Problem Details for HTTP APIs):
 }
 ```
 
-1. **Consistent error structure**: All errors must follow the same format
-2. **Global `@RestControllerAdvice`**: Handle exceptions centrally, don't catch in each controller
+1. **Consistent error structure**: All errors must follow the same format — clients should be able to write one error parser
+2. **Global `@RestControllerAdvice`**: Handle exceptions centrally, don't catch in each controller. Without this, Spring returns its default whitelabel error page or inconsistent JSON
 3. **No stack traces in production**: Never expose internal details in error responses
-4. **Validation error details**: Include field-level errors for 400 responses
+4. **Validation error details**: Include field-level errors for 400 responses so clients can highlight the right form field
 
-### Pagination
+### 5. Pagination
 
-1. **Collection endpoints must be paginated**: Never return unbounded lists
+1. **Collection endpoints must be paginated**: Never return unbounded lists — this is a correctness issue, not just performance. An endpoint that returns 100k rows will crash mobile clients
 2. **Use `Pageable` parameter**: `GET /users?page=0&size=20&sort=name,asc`
 3. **Return page metadata**: total elements, total pages, current page, page size
-4. **Consistent response wrapper**: Use Spring's `Page<T>` or a custom wrapper
+4. **Default page size**: Set a reasonable default (e.g., 20) and a maximum (e.g., 100) to prevent `?size=999999`
+5. **Consistent response wrapper**: Use Spring's `Page<T>` or a custom wrapper — don't return raw `List<T>` from some endpoints and `Page<T>` from others
 
-### Versioning
+### 6. Versioning
 
-1. **API version strategy**: URL path (`/v1/users`), header, or media type — pick one, be consistent
-2. **No version is a risk**: APIs without versioning cannot evolve without breaking clients
+1. **API version strategy**: URL path (`/v1/users`), header, or media type — pick one, be consistent across the entire API
+2. **No version is a risk**: APIs without versioning cannot evolve without breaking clients. At minimum, use a `/api/v1/` prefix so there's a migration path
 
-### Content Negotiation
+### 7. Request/Response Design
 
-1. **Accept and Content-Type headers**: Respect them properly
-2. **Default to JSON**: But support `application/xml` if needed
-3. **Use DTOs**: Never expose JPA entities directly as API responses
+1. **Use DTOs**: Never expose JPA entities directly as API responses — this leaks internal fields (IDs, foreign keys, passwords) and couples your API contract to your database schema. Any schema migration breaks all clients
+2. **Separate request and response DTOs**: A create request usually has different fields than the response (e.g., no `id`, no `createdAt`)
+3. **Accept and Content-Type headers**: Respect them properly, default to `application/json`
+4. **Consistent field naming**: Pick `camelCase` or `snake_case` for JSON and stick with it project-wide
 
 ## Output Format
 
-Endpoint inventory with issues:
+First, build a full endpoint inventory table:
 
-| Method | URL | Issues | Recommendation |
-|--------|-----|--------|----------------|
-| GET | /api/users | - | Correct |
-| POST | /api/createUser | Verb in URL, missing 201 | Rename to POST /api/users, return 201 |
+| Method | URL | Status Code | Issues | Recommendation |
+|--------|-----|-------------|--------|----------------|
+| GET | /api/users | 200 | No pagination | Add `Pageable`, return `Page<UserDto>` |
+| POST | /api/createUser | 200 | Verb in URL, wrong status code, no Location header | Rename to `POST /api/v1/users`, return 201 + Location |
 
-For detailed conventions, see [rest-api-conventions.md](references/rest-api-conventions.md).
+Then list any cross-cutting issues (missing `@RestControllerAdvice`, no versioning strategy, inconsistent DTOs).
+
+End with a summary: total endpoints reviewed, issues by severity, and the **top 3 things to fix first**.
+
+For implementation patterns, see [rest-api-conventions.md](references/rest-api-conventions.md).
