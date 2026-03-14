@@ -1,5 +1,5 @@
 ---
-name: dockerfile
+name: spring-dockerfile
 description: >
   Generate an optimized, production-ready Dockerfile for a Spring Boot application.
   Multi-stage build with dependency layer caching, JVM container flags, non-root user,

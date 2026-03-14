@@ -1,5 +1,5 @@
 ---
-name: api-design
+name: spring-api-design
 description: Review REST API design against best practices — URL naming, HTTP verbs, status codes, error handling, pagination, versioning, and idempotency. Use this skill whenever the user wants to review, check, or improve their REST API, endpoints, or controller design — even if they just say "passt meine API so?", "check my endpoints", "schau dir mal die Controller an", or ask about REST conventions.
 argument-hint: "[controller-file]"
 allowed-tools: Bash(*)

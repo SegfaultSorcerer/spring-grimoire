@@ -29,11 +29,11 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 |:------|:-------------|
 | `/spring-review` | Four-pillar code review: **Security**, **Performance**, **Transactions**, **Bean Lifecycle** |
 | `/spring-migration` | Spring Boot 2→3 migration analysis with effort estimate and OpenRewrite |
-| `/api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
-| `/jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
-| `/security-check` | Spring Security audit — filter chains, CORS, CSRF, JWT, IDOR, dev/debug traps |
-| `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository, security tests |
-| `/dockerfile` | Multi-stage Dockerfile with layered JAR, JVM flags, non-root user, signal handling |
+| `/spring-api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
+| `/spring-jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
+| `/spring-security-check` | Spring Security audit — filter chains, CORS, CSRF, JWT, IDOR, dev/debug traps |
+| `/spring-test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository, security tests |
+| `/spring-dockerfile` | Multi-stage Dockerfile with layered JAR, JVM flags, non-root user, signal handling |
 
 <details>
 <summary><b>Skill details</b></summary>
@@ -66,7 +66,7 @@ Key advantages with the skill:
 
 </details>
 
-### `/test-gen [file]`
+### `/spring-test-gen [file]`
 
 Pass a file path and it generates tests matching the class type:
 
@@ -97,7 +97,7 @@ Key advantages with the skill:
 
 </details>
 
-### `/jpa-audit`
+### `/spring-jpa-audit`
 
 Scans entities and repositories for:
 - N+1 query patterns → recommends `@EntityGraph`, `JOIN FETCH`, `@BatchSize`, DTO projections
@@ -157,7 +157,7 @@ Key advantages with the skill:
 
 </details>
 
-### `/security-check`
+### `/spring-security-check`
 
 Reviews security posture and rates it `RED` / `YELLOW` / `GREEN`:
 - Filter chain ordering, default-deny rules, matcher precedence
@@ -187,7 +187,7 @@ Key advantages with the skill:
 
 </details>
 
-### `/api-design`
+### `/spring-api-design`
 
 Builds an endpoint inventory and checks:
 - URL naming (nouns, plural, lowercase-hyphenated, no trailing slashes, no file extensions)
@@ -216,7 +216,7 @@ Key advantages with the skill:
 
 </details>
 
-### `/dockerfile`
+### `/spring-dockerfile`
 
 Generates production-ready container artifacts:
 - Multi-stage build with dependency layer caching
@@ -327,11 +327,11 @@ Every skill is tested against realistic Spring Boot fixture projects with intent
 | Skill | With Skill | Without Skill | Delta |
 |:------|:-----------|:--------------|:------|
 | `/spring-review` | 95.2% | 81.0% | **+14.2%** |
-| `/api-design` | 97.8% | 77.8% | **+20.0%** |
-| `/jpa-audit` | 97.9% | 81.3% | **+16.6%** |
-| `/security-check` | 100.0% | 77.8% | **+22.2%** |
-| `/dockerfile` | 100.0% | 81.0% | **+19.0%** |
-| `/test-gen` | 100.0% | 78.6% | **+21.4%** |
+| `/spring-api-design` | 97.8% | 77.8% | **+20.0%** |
+| `/spring-jpa-audit` | 97.9% | 81.3% | **+16.6%** |
+| `/spring-security-check` | 100.0% | 77.8% | **+22.2%** |
+| `/spring-dockerfile` | 100.0% | 81.0% | **+19.0%** |
+| `/spring-test-gen` | 100.0% | 78.6% | **+21.4%** |
 | `/spring-migration` | 100.0% | 77.3% | **+22.7%** |
 | **Average** | **98.7%** | **79.3%** | **+19.4%** |
 

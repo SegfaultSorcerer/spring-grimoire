@@ -1,5 +1,5 @@
 ---
-name: test-gen
+name: spring-test-gen
 description: >
   Generate JUnit 5 tests for a Java or Kotlin class. Detects class type
   (Controller, Service, Repository, Configuration) and applies the right testing

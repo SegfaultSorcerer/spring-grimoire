@@ -1,5 +1,5 @@
 ---
-name: jpa-audit
+name: spring-jpa-audit
 description: Audit JPA entities and repositories for N+1 queries, missing indexes, lazy loading traps, relationship anti-patterns, and fetch strategy mistakes. Use this skill whenever the user wants to audit, review, or optimize their JPA entities, repositories, or database performance — even if they just say "meine Queries sind langsam", "warum dauert das so lange", "check my entities", or "ist das performant?".
 argument-hint: "[entity-or-directory]"
 allowed-tools: Bash(*)

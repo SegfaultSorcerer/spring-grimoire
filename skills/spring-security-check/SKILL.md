@@ -1,5 +1,5 @@
 ---
-name: security-check
+name: spring-security-check
 description: Review Spring Security configuration for vulnerabilities, misconfigured filter chains, CORS/CSRF issues, authentication/authorization gaps, and security anti-patterns. Use this skill whenever the user wants to check, audit, or review the security of their Spring Boot application — even if they just say "ist meine App sicher?", "check mal die Auth", "security audit", "passt die Security Config?", or ask about CORS/CSRF/JWT issues.
 argument-hint: "[security-config-file]"
 allowed-tools: Bash(*)
