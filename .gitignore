@@ -5,3 +5,6 @@
 .idea/
 *.iml
 .vscode/
+
+# Skill eval workspaces (test fixtures, benchmark runs, grading artifacts)
+*-workspace/

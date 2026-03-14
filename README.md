@@ -27,7 +27,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 
 | Skill | What it does |
 |:------|:-------------|
-| `/spring-review` | Three-pillar code review: **Security**, **Performance**, **Bean Lifecycle** |
+| `/spring-review` | Four-pillar code review: **Security**, **Performance**, **Transactions**, **Bean Lifecycle** |
 | `/spring-migration` | Spring Boot 2→3 migration analysis with javax→jakarta mappings |
 | `/api-design` | REST API review: naming, HTTP verbs, status codes, RFC 7807 errors |
 | `/jpa-audit` | Entity audit for N+1 queries, missing indexes, lazy loading traps |
@@ -40,12 +40,31 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 
 ### `/spring-review`
 
-Performs a structured code review across three pillars:
-- **Security** — input validation, SQL injection, hardcoded secrets, actuator exposure
-- **Performance** — missing `@Cacheable`, unbounded queries, eager fetching
-- **Bean Lifecycle** — circular dependencies, scope mismatches, field injection
+Performs a structured code review across four pillars:
+- **Security** — SQL injection, hardcoded secrets, CORS, actuator exposure, input validation
+- **Performance** — N+1 queries, eager fetching, missing pagination, missing indexes
+- **Transactions & Data Access** — missing `@Transactional`, private method traps, `@Modifying` misuse
+- **Bean Lifecycle** — circular dependencies, field injection, scope mismatches, heavy `@PostConstruct`
 
-Outputs a findings table with severity levels (`CRITICAL` / `WARNING` / `INFO`).
+Outputs a findings table with severity levels (`CRITICAL` / `WARNING` / `INFO`) and a prioritized Top 3 action list.
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 3.2 fixture project with ~30 intentional bugs across all four pillars.
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 95.2% | 81.0% | **+14.2%** |
+| Avg. Time | 103.7s | 98.5s | +5.2s |
+| Avg. Tokens | 22,106 | 18,067 | +4,039 |
+
+Key advantages with the skill:
+- **Consistent output format** — structured table in 3/3 runs (vs. 0/3 without)
+- **Transactions pillar** — dedicated coverage of `@Transactional` misuse that baseline reviews fold into general findings
+- **Prioritized summary** — always ends with severity counts and Top 3 fixes
+
+</details>
 
 ### `/test-gen [file]`
 

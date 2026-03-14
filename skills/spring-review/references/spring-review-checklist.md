@@ -1,5 +1,7 @@
 # Spring Boot Code Review Checklist
 
+Use this checklist as a detailed reference when reviewing each layer. The main SKILL.md covers the four pillars — this file provides per-layer specifics.
+
 ## Controller Layer
 
 ### Request Handling
@@ -10,8 +12,8 @@
 - Controllers are stateless (no instance fields holding request state)
 
 ### Response Handling
+- Return DTOs, never JPA entities directly (avoids leaking internal fields, lazy-loading issues, and circular serialization)
 - Use `ResponseEntity<T>` for explicit status code control
-- Return DTOs, never JPA entities directly
 - Consistent error response format via `@RestControllerAdvice`
 - No stack traces or internal details in error responses
 - Pagination on all collection endpoints
@@ -24,7 +26,7 @@
 ## Service Layer
 
 ### Transaction Management
-- `@Transactional` on service methods that modify data, not on read-only methods
+- `@Transactional` on service methods that modify data
 - `@Transactional(readOnly = true)` on read-only methods for optimization
 - No `@Transactional` on private methods (won't work — proxy-based AOP)
 - Propagation explicitly set when nesting transactions
@@ -51,10 +53,10 @@
 - `@Modifying(clearAutomatically = true)` to sync persistence context
 
 ### Performance
+- `@EntityGraph` or `JOIN FETCH` used to avoid N+1 queries — check every `@OneToMany`/`@ManyToMany` relationship
 - Custom queries use projections (interface or class-based DTOs) for read-only data
 - Pagination applied via `Pageable` parameter
-- `@EntityGraph` used to avoid N+1 queries where needed
-- Batch operations for bulk inserts/updates
+- Batch operations for bulk inserts/updates (`spring.jpa.properties.hibernate.jdbc.batch_size`)
 
 ## Configuration
 
@@ -79,7 +81,7 @@
 ## Async and Scheduling
 
 ### `@Async`
-- `@EnableAsync` configured with custom `TaskExecutor` (not default `SimpleAsyncTaskExecutor`)
+- `@EnableAsync` configured with custom `TaskExecutor` (not default `SimpleAsyncTaskExecutor` which creates unbounded threads)
 - Thread pool sized appropriately (core, max, queue capacity)
 - Return type is `CompletableFuture<T>` or `void` — not a regular return type
 - Exception handling configured via `AsyncUncaughtExceptionHandler`
@@ -97,3 +99,12 @@
 - No sensitive data in logs (passwords, tokens, PII)
 - Parameterized logging: `log.info("User {} logged in", userId)` not `log.info("User " + userId + " logged in")`
 - MDC used for request tracing
+
+## Testing
+
+- Controllers tested with `@WebMvcTest` (not full `@SpringBootTest` for slice tests)
+- Services tested with unit tests (mocked repositories)
+- Repositories tested with `@DataJpaTest` against embedded or testcontainers DB
+- Security-critical logic (authorization, input validation) has dedicated tests
+- `@Transactional` behavior tested (rollback on exception, propagation)
+- No `@SpringBootTest` when a slice test (`@WebMvcTest`, `@DataJpaTest`, `@JsonTest`) suffices — full context startup is slow and unnecessary
