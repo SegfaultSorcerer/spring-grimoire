@@ -33,7 +33,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 | `/jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
 | `/security-check` | Spring Security audit — filter chains, CORS, CSRF, JWT, IDOR, dev/debug traps |
 | `/test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository patterns |
-| `/dockerfile` | Multi-stage Dockerfile with layer caching, JVM flags, non-root user |
+| `/dockerfile` | Multi-stage Dockerfile with layered JAR, JVM flags, non-root user, signal handling |
 
 <details>
 <summary><b>Skill details</b></summary>
@@ -179,10 +179,31 @@ Key advantages with the skill:
 
 Generates production-ready container artifacts:
 - Multi-stage build with dependency layer caching
+- Spring Boot layered JAR extraction for optimal Docker caching
 - JVM container flags (`-XX:MaxRAMPercentage=75.0`)
-- Non-root user, `.dockerignore`
+- Non-root user, exec-form ENTRYPOINT (PID 1 signal handling), `.dockerignore`
 - Health check via Actuator (if present)
-- `docker-compose.yml` snippet for local dev
+- `docker-compose.yml` snippet for local dev (modern Compose v3+ syntax)
+- Analyzes existing Dockerfiles before generating replacements
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 3.2 project with Java 21, Actuator, and an intentionally bad existing Dockerfile.
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 100.0% | 81.0% | **+19.0%** |
+| Avg. Time | 67.8s | 41.7s | +26.1s |
+| Avg. Tokens | 16,215 | 12,108 | +4,107 |
+
+Key advantages with the skill:
+- **Spring Boot layered JAR extraction** in 3/3 runs (vs. 0/3 without)
+- **Exec-form ENTRYPOINT with JarLauncher** for proper PID 1 signal handling (vs. shell wrappers or plain `-jar`)
+- **Modern Compose syntax** (`deploy.resources.limits.memory`) in 3/3 runs (vs. deprecated `mem_limit` / missing)
+- **No redundant `-XX:+UseContainerSupport`** (default since JDK 10) — baseline includes it 2/3 times
+
+</details>
 
 </details>
 
