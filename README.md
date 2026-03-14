@@ -4,7 +4,8 @@
 
 **A spellbook of [Claude Code](https://claude.ai/code) skills and hooks for Java/Spring Boot development.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE-APACHE)
 [![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-cc785c?logo=anthropic&logoColor=white)](https://claude.ai/code)
@@ -349,4 +350,9 @@ To add a new skill:
 
 ## License
 
-[MIT](LICENSE)
+This project is dual-licensed under either of
+
+- [Apache License, Version 2.0](LICENSE-APACHE)
+- [MIT License](LICENSE-MIT)
+
+at your option.
