@@ -1,18 +1,27 @@
 ---
 name: spring-migration
-description: Analyze a Spring Boot project for migration from Spring Boot 2 to 3 and javax to jakarta namespace changes. Generates a migration report with file-by-file changes needed.
+description: >
+  Analyze a Spring Boot project for migration from Spring Boot 2 to 3
+  (or between minor versions). Generates a migration report covering
+  javax→jakarta namespace changes, Spring Security 6 API changes,
+  configuration property renames, behavior changes, and effort estimate.
+  Use this skill whenever the user wants to upgrade, migrate, or update
+  their Spring Boot version, move from Boot 2 to 3, or asks about
+  javax to jakarta changes, Spring Security migration, or Spring Boot
+  compatibility issues.
+argument-hint: "[target-version]"
 allowed-tools: Bash(*)
 ---
 
 # Spring Boot Migration Analysis
 
-Analyze the project for Spring Boot 2 to 3 migration requirements.
+Analyze the project for Spring Boot migration requirements.
 
 ## Project Context
 
 Current Spring Boot version:
 !`grep -A1 "spring-boot-starter-parent\|spring-boot.*version" pom.xml 2>/dev/null | head -5`
-!`grep "org.springframework.boot" build.gradle 2>/dev/null | head -5`
+!`grep "org.springframework.boot" build.gradle build.gradle.kts 2>/dev/null | head -5`
 
 Java version:
 !`grep -E "java.version|sourceCompatibility|targetCompatibility" pom.xml build.gradle build.gradle.kts 2>/dev/null | head -5`
@@ -21,12 +30,25 @@ Files using javax namespace:
 !`grep -rln "^import javax\." --include="*.java" . 2>/dev/null | head -20`
 
 Spring Security configuration:
-!`grep -rln "WebSecurityConfigurerAdapter\|authorizeRequests\|antMatchers\|mvcMatchers" --include="*.java" . 2>/dev/null | head -10`
+!`grep -rln "WebSecurityConfigurerAdapter\|authorizeRequests\|antMatchers\|mvcMatchers\|EnableGlobalMethodSecurity" --include="*.java" . 2>/dev/null | head -10`
 
 Properties files:
 !`ls src/main/resources/application*.properties src/main/resources/application*.yml 2>/dev/null`
 
+Spring Cloud dependencies:
+!`grep -E "spring-cloud|spring-cloud-dependencies" pom.xml build.gradle build.gradle.kts 2>/dev/null | head -5`
+
+Database migration tool:
+!`grep -E "flyway|liquibase" pom.xml build.gradle build.gradle.kts 2>/dev/null | head -5`
+
+Deprecated test patterns:
+!`grep -rln "@MockBean\|@SpyBean" --include="*.java" . 2>/dev/null | head -10`
+
 ## Migration Analysis Steps
+
+Read the reference files before producing the report — they contain the complete mappings and code examples that the analysis should draw from:
+- [javax-to-jakarta-mappings.md](references/javax-to-jakarta-mappings.md) for namespace changes and dependency coordinates
+- [spring-boot-3-breaking-changes.md](references/spring-boot-3-breaking-changes.md) for Security, property, and behavior changes
 
 ### 1. Namespace Migration (javax → jakarta)
 
@@ -43,9 +65,7 @@ Scan all Java files for `javax.*` imports that need to change:
 | `javax.mail.*` | `jakarta.mail.*` |
 | `javax.inject.*` | `jakarta.inject.*` |
 
-**Note:** `javax.sql.*`, `javax.crypto.*`, `javax.net.*` do NOT change — they are part of the JDK.
-
-For complete mappings, see [javax-to-jakarta-mappings.md](references/javax-to-jakarta-mappings.md).
+**Critical:** `javax.sql.*`, `javax.crypto.*`, `javax.net.*` do NOT change — they are part of the JDK, not Jakarta EE. Incorrectly renaming these will break compilation.
 
 ### 2. Spring Security 6 Changes
 
@@ -78,22 +98,56 @@ For complete mappings, see [javax-to-jakarta-mappings.md](references/javax-to-ja
 
 Check `pom.xml` / `build.gradle` for outdated coordinates.
 
-For complete breaking changes, see [spring-boot-3-breaking-changes.md](references/spring-boot-3-breaking-changes.md).
+### 6. Spring Cloud Compatibility
+
+If the project uses Spring Cloud, check the compatibility matrix. Spring Cloud releases are tied to specific Spring Boot versions:
+
+| Spring Boot | Spring Cloud |
+|-------------|-------------|
+| 3.0.x | 2022.0.x (Kilburn) |
+| 3.1.x | 2022.0.x |
+| 3.2.x | 2023.0.x (Leyton) |
+| 3.3.x | 2023.0.x |
+| 3.4.x | 2024.0.x |
+
+### 7. Automated Migration Tooling
+
+Recommend OpenRewrite for automated refactoring — it handles the bulk of mechanical changes (namespace renames, API replacements):
+
+```xml
+<plugin>
+    <groupId>org.openrewrite.maven</groupId>
+    <artifactId>rewrite-maven-plugin</artifactId>
+    <version>5.x</version>
+    <configuration>
+        <activeRecipes>
+            <recipe>org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_0</recipe>
+        </activeRecipes>
+    </configuration>
+</plugin>
+```
 
 ## Output Format
 
 ### Migration Report
 
-**Effort Estimate:** LOW / MEDIUM / HIGH
+**Current Version:** X.Y.Z → **Target Version:** X.Y.Z
 
-| Priority | Category | Files Affected | Change Required |
-|----------|----------|----------------|-----------------|
-| 1 | javax → jakarta | file1.java, file2.java | Replace imports |
-| 2 | Security config | SecurityConfig.java | Rewrite filter chain |
-| ... | ... | ... | ... |
+**Effort Estimate:** LOW / MEDIUM / HIGH
+- **LOW**: Only namespace changes, no Security or behavior changes
+- **MEDIUM**: Namespace + Security config rewrite, few property changes
+- **HIGH**: Major Security rewrite, Spring Cloud upgrade, Hibernate query changes, or 50+ files affected
+
+| Priority | Category | Files Affected | Change Required | Effort |
+|----------|----------|----------------|-----------------|--------|
+| 1 | javax → jakarta | file1.java, file2.java | Replace imports | LOW |
+| 2 | Security config | SecurityConfig.java | Rewrite filter chain | HIGH |
+| ... | ... | ... | ... | ... |
 
 For each category, provide:
-1. Files affected (list)
-2. Specific changes needed
+1. Files affected (list with count)
+2. Specific changes needed (with before/after examples for non-trivial changes)
 3. Potential breaking changes to watch for
 4. Testing recommendations
+
+End with a **Top 3 Migration Steps** summary — the three highest-impact actions to take first, ordered by risk.

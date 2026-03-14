@@ -28,7 +28,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 | Skill | What it does |
 |:------|:-------------|
 | `/spring-review` | Four-pillar code review: **Security**, **Performance**, **Transactions**, **Bean Lifecycle** |
-| `/spring-migration` | Spring Boot 2→3 migration analysis with javax→jakarta mappings |
+| `/spring-migration` | Spring Boot 2→3 migration analysis with effort estimate and OpenRewrite |
 | `/api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
 | `/jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
 | `/security-check` | Spring Security audit — filter chains, CORS, CSRF, JWT, IDOR, dev/debug traps |
@@ -129,11 +129,33 @@ Key advantages with the skill:
 ### `/spring-migration`
 
 Generates a migration report covering:
-- `javax.*` → `jakarta.*` namespace changes (full mapping table)
+- `javax.*` → `jakarta.*` namespace changes (with JDK package warnings)
 - Spring Security 6 API changes (`authorizeRequests` → `authorizeHttpRequests`)
 - Configuration property renames (`spring.redis.*` → `spring.data.redis.*`)
+- Spring Cloud compatibility matrix
 - Behavior changes (trailing slash, `PathPatternParser`)
-- Effort estimate per category
+- Effort estimate (LOW/MEDIUM/HIGH) with Top 3 priority actions
+- OpenRewrite automation recommendation
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 2.7 project with Java 11, Spring Security, JPA, Spring Cloud, Flyway, and ~20 intentional migration issues.
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 100.0% | 77.3% | **+22.7%** |
+| Avg. Time | 100.0s | 71.4s | +28.6s |
+| Avg. Tokens | 23,801 | 17,090 | +6,711 |
+
+Key advantages with the skill:
+- **Effort estimate** (LOW/MEDIUM/HIGH) in 3/3 runs (vs. 0/3 without)
+- **Top 3 Migration Steps** summary in 3/3 runs (vs. 0/3 without)
+- **OpenRewrite recommendation** with specific recipes in 3/3 runs (vs. 0/3 without)
+- **JDK javax package warning** (`javax.sql.*` does NOT change) in 3/3 runs (vs. 0/3 without)
+- **Trailing slash detection** in 3/3 runs (vs. 1/3 without)
+
+</details>
 
 ### `/security-check`
 
