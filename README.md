@@ -11,28 +11,9 @@
 
 7 slash commands. 4 automation hooks. Zero config to get started.
 
-[Benchmark](#benchmark) · [Installation](#installation) · [Skills](#skills) · [Hooks](#hooks) · [Configuration](#configuration)
+[Installation](#installation) · [Skills](#skills) · [Hooks](#hooks) · [Configuration](#configuration) · [Benchmark](#benchmark)
 
 </div>
-
----
-
-## Benchmark
-
-Every skill is tested against realistic Spring Boot fixture projects with intentional issues — once **with** the skill, once **without** (bare Claude as baseline). Each configuration runs 3 times; results are averaged.
-
-| Skill | With Skill | Without Skill | Delta |
-|:------|:-----------|:--------------|:------|
-| `/spring-review` | 95.2% | 81.0% | **+14.2%** |
-| `/api-design` | 97.8% | 77.8% | **+20.0%** |
-| `/jpa-audit` | 97.9% | 81.3% | **+16.6%** |
-| `/security-check` | 100.0% | 77.8% | **+22.2%** |
-| `/dockerfile` | 100.0% | 81.0% | **+19.0%** |
-| `/test-gen` | 100.0% | 78.6% | **+21.4%** |
-| `/spring-migration` | 100.0% | 77.3% | **+22.7%** |
-| **Average** | **98.7%** | **79.3%** | **+19.4%** |
-
-> Pass rate = percentage of assertions met (content detection + output format). Tested with Claude Opus 4.6. Per-skill details in the [Skills](#skills) section.
 
 ---
 
@@ -338,6 +319,23 @@ touch .spring-grimoire/spotbugs.enabled       # spotbugs (requires checkstyle)
 ### Disabling the prod config guard
 
 The `block-prod-config` hook is always active by design. To disable it, remove the entry from `hooks/hooks.json`.
+
+## Benchmark
+
+Every skill is tested against realistic Spring Boot fixture projects with intentional issues — once **with** the skill, once **without** (bare Claude as baseline). Each configuration runs 3 times; results are averaged.
+
+| Skill | With Skill | Without Skill | Delta |
+|:------|:-----------|:--------------|:------|
+| `/spring-review` | 95.2% | 81.0% | **+14.2%** |
+| `/api-design` | 97.8% | 77.8% | **+20.0%** |
+| `/jpa-audit` | 97.9% | 81.3% | **+16.6%** |
+| `/security-check` | 100.0% | 77.8% | **+22.2%** |
+| `/dockerfile` | 100.0% | 81.0% | **+19.0%** |
+| `/test-gen` | 100.0% | 78.6% | **+21.4%** |
+| `/spring-migration` | 100.0% | 77.3% | **+22.7%** |
+| **Average** | **98.7%** | **79.3%** | **+19.4%** |
+
+> Pass rate = percentage of assertions met (content detection + output format). Tested with Claude Opus 4.6. Per-skill details in the [Skills](#skills) section.
 
 ## Contributing
 
