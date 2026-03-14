@@ -8,7 +8,5 @@
   },
   "repository": "https://github.com/SegfaultSorcerer/spring-grimoire",
   "license": "MIT",
-  "keywords": ["java", "spring", "spring-boot", "jpa", "security", "testing", "docker"],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "keywords": ["java", "spring", "spring-boot", "jpa", "security", "testing", "docker"]
 }
