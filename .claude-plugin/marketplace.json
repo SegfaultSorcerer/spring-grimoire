@@ -1,0 +1,23 @@
+{
+  "name": "spring-grimoire",
+  "owner": {
+    "name": "SegfaultSorcerer"
+  },
+  "metadata": {
+    "description": "A spellbook of Claude Code skills and hooks for the Java/Spring ecosystem"
+  },
+  "plugins": [
+    {
+      "name": "spring-grimoire",
+      "source": ".",
+      "description": "Code reviews, JPA audits, security checks, test generation and more — as Claude Code slash commands for Spring Boot",
+      "version": "1.0.0",
+      "author": {
+        "name": "SegfaultSorcerer"
+      },
+      "repository": "https://github.com/SegfaultSorcerer/spring-grimoire",
+      "license": "MIT",
+      "keywords": ["java", "spring", "spring-boot", "jpa", "security", "testing", "docker"]
+    }
+  ]
+}
