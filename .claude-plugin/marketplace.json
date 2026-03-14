@@ -9,7 +9,10 @@
   "plugins": [
     {
       "name": "spring-grimoire",
-      "source": ".",
+      "source": {
+        "source": "github",
+        "repo": "SegfaultSorcerer/spring-grimoire"
+      },
       "description": "Code reviews, JPA audits, security checks, test generation and more — as Claude Code slash commands for Spring Boot",
       "version": "1.0.0",
       "author": {
