@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="spring-grimoire.png" alt="Spring Grimoire" width="100%">
+<img src="assets/spring-grimoire.png" alt="Spring Grimoire" width="100%">
 
 **A spellbook of [Claude Code](https://claude.ai/code) skills and hooks for Java/Spring Boot development.**
 
