@@ -10,7 +10,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-cc785c?logo=anthropic&logoColor=white)](https://claude.ai/code)
 
-7 slash commands. 4 automation hooks. Zero config to get started.
+8 slash commands. 4 automation hooks. Zero config to get started.
 
 [Installation](#installation) · [Skills](#skills) · [Hooks](#hooks) · [Configuration](#configuration) · [Benchmark](#benchmark)
 
@@ -33,6 +33,7 @@ Claude Code is powerful out of the box — but it doesn't know the Spring ecosys
 | `/spring-api-design` | REST API review: naming, HTTP verbs, status codes, pagination, versioning, idempotency |
 | `/spring-jpa-audit` | Entity audit for N+1 queries, EAGER defaults, missing indexes, relationship anti-patterns |
 | `/spring-security-check` | Spring Security audit — filter chains, CORS, CSRF, JWT, IDOR, dev/debug traps |
+| `/spring-config-audit` | Config audit: dangerous defaults, production hardening, profile conflicts, deprecated properties, timeout alignment |
 | `/spring-test-gen [file]` | Generate JUnit 5 tests — detects Controller/Service/Repository, security tests |
 | `/spring-dockerfile` | Multi-stage Dockerfile with layered JAR, JVM flags, non-root user, signal handling |
 
@@ -188,6 +189,37 @@ Key advantages with the skill:
 
 </details>
 
+### `/spring-config-audit`
+
+Deep scan of Spring Boot configuration files (`application.yml`, `application.properties`, profile variants):
+- **Dangerous defaults** — `open-in-view=true`, HikariCP pool defaults, `ddl-auto: update`, missing graceful shutdown
+- **Production hardening** — unsecured actuator, missing Tomcat tuning, Whitelabel enabled, missing shutdown timeout
+- **Profile conflicts** — contradictory overrides, unused profile files, `config.import` ordering
+- **Orphaned & deprecated properties** — misspelled keys, Boot 2.x→3.x renames, properties for absent starters
+- **Timeout & pool consistency** — HikariCP vs Tomcat, Feign vs circuit breaker, thread pool vs connection pool
+- **Security in properties** — hardcoded credentials, debug logging in prod, H2 console outside dev
+
+Starter-aware: only flags issues for starters present in `pom.xml` / `build.gradle`.
+
+<details>
+<summary><b>Benchmark results</b></summary>
+
+Tested against a Spring Boot 3.2 fixture project with ~27 intentional configuration issues across 4 config files.
+
+| Metric | With Skill | Without Skill | Delta |
+|:-------|:-----------|:--------------|:------|
+| Pass Rate | 100.0% | 74.8% | **+25.2%** |
+| Avg. Time | 123.4s | 98.4s | +25.0s |
+| Avg. Tokens | 26,085 | 18,621 | +7,464 |
+
+Key advantages with the skill:
+- **RED/YELLOW/GREEN production readiness verdict** in 3/3 runs (vs. 0/3 without)
+- **Timeout alignment diagrams** showing current vs recommended chain (vs. 0/3 without)
+- **Starter-conditional analysis** explaining which findings depend on which dependencies (vs. 0/3 without)
+- **Consistent `CRITICAL|WARNING|INFO` severity table** in 3/3 runs (vs. 0/3 — baseline uses HIGH/MEDIUM/LOW)
+
+</details>
+
 ### `/spring-api-design`
 
 Builds an endpoint inventory and checks:
@@ -334,7 +366,8 @@ Every skill is tested against realistic Spring Boot fixture projects with intent
 | `/spring-dockerfile` | 100.0% | 81.0% | **+19.0%** |
 | `/spring-test-gen` | 100.0% | 78.6% | **+21.4%** |
 | `/spring-migration` | 100.0% | 77.3% | **+22.7%** |
-| **Average** | **98.7%** | **79.3%** | **+19.4%** |
+| `/spring-config-audit` | 100.0% | 74.8% | **+25.2%** |
+| **Average** | **98.9%** | **78.7%** | **+20.2%** |
 
 > Pass rate = percentage of assertions met (content detection + output format). Tested with Claude Opus 4.6. Per-skill details in the [Skills](#skills) section.
 
