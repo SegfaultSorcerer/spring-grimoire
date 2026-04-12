@@ -1,0 +1,72 @@
+{
+  "skill_name": "spring-config-audit",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Prüf mal meine Spring Boot Config auf Probleme",
+      "expected_output": "A comprehensive config audit with RED/YELLOW/GREEN verdict, unified severity table, cross-file analysis, timeout alignment diagram, and starter-conditional summary.",
+      "files": [],
+      "expectations": [
+        "Finds spring.jpa.open-in-view defaulting to true as a WARNING or higher",
+        "Finds spring.jpa.hibernate.ddl-auto: update as CRITICAL or WARNING",
+        "Finds hardcoded spring.datasource.password as CRITICAL",
+        "Finds missing server.shutdown: graceful as WARNING or higher",
+        "Finds management.endpoints.web.exposure.include: * as CRITICAL",
+        "Finds spring.h2.console.enabled: true in base config as CRITICAL or WARNING",
+        "Finds spring.redis.host as deprecated property (should be spring.data.redis.host)",
+        "Finds logging.level.org.springframework.security: DEBUG in prod profile as CRITICAL or WARNING",
+        "Finds hardcoded password in application-prod.yml as CRITICAL",
+        "Finds spring.devtools in production profile as WARNING or higher",
+        "Finds HikariCP connectionTimeout vs Tomcat connection-timeout mismatch",
+        "Finds Feign timeout exceeding Resilience4j circuit breaker timeout",
+        "Finds Tomcat max-threads vs HikariCP pool size imbalance",
+        "Finds misspelled ddl_auto property (underscore vs hyphen)",
+        "Finds orphaned app.feature.toggles property without @ConfigurationProperties binding",
+        "Finds spring.flyway.enabled without Flyway dependency",
+        "Includes a RED/YELLOW/GREEN production readiness verdict",
+        "Output uses a single unified table with exactly CRITICAL/WARNING/INFO severity levels (not HIGH/MEDIUM/LOW)",
+        "Identifies cross-file override failure: ddl_auto underscore in prod may not override ddl-auto update in base",
+        "Includes a timeout alignment diagram or chain showing current vs recommended ordering",
+        "Includes starter-conditional analysis explaining which findings depend on which dependencies",
+        "Output ends with a summary and top 3 prioritized action items"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Schau dir mal src/main/resources/application-prod.yml an",
+      "expected_output": "A focused production config review with verdict, unified severity table, cross-file tracing, and timeout alignment.",
+      "files": [],
+      "expectations": [
+        "Finds hardcoded spring.datasource.password in application-prod.yml as CRITICAL",
+        "Finds logging.level.org.springframework.security: DEBUG as CRITICAL or WARNING",
+        "Finds spring.devtools.restart.enabled: true in prod as WARNING or higher",
+        "Finds management.endpoint.env.show-values: ALWAYS as CRITICAL or WARNING",
+        "Finds HikariCP connectionTimeout (60s) vs Tomcat connection-timeout (10s) mismatch",
+        "Finds HikariCP maximum-pool-size: 5 as too small for Tomcat default threads",
+        "Finds misspelled ddl_auto property and explains it may not override the base config ddl-auto: update",
+        "Includes a RED/YELLOW/GREEN production readiness verdict",
+        "Output uses a single unified table with exactly CRITICAL/WARNING/INFO severity levels (not HIGH/MEDIUM/LOW)",
+        "Includes a timeout alignment diagram or chain showing current vs recommended ordering",
+        "Output ends with a summary and top 3 prioritized action items"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Ist die Config production-ready?",
+      "expected_output": "A production-readiness assessment with clear RED verdict, unified table, cross-file analysis, and actionable top 3.",
+      "files": [],
+      "expectations": [
+        "Clearly states the config is NOT production-ready with a RED verdict",
+        "Finds at least 3 CRITICAL severity issues",
+        "Finds hardcoded credentials in at least one config file",
+        "Finds unsecured actuator endpoints",
+        "Finds at least one timeout or pool size inconsistency",
+        "Finds at least one deprecated or misspelled property",
+        "Provides specific fix recommendations (not just identifies problems)",
+        "Output uses a single unified table with exactly CRITICAL/WARNING/INFO severity levels (not HIGH/MEDIUM/LOW)",
+        "Includes starter-conditional analysis explaining which findings depend on which dependencies",
+        "Output ends with a summary and top 3 prioritized action items"
+      ]
+    }
+  ]
+}
