@@ -10,8 +10,8 @@
     {
       "name": "spring-grimoire",
       "source": "./",
-      "description": "Code reviews, JPA audits, security checks, test generation and more — as Claude Code slash commands for Spring Boot",
-      "version": "1.1.0",
+      "description": "Code reviews, JPA audits, security checks, config auditing, test generation and more — as Claude Code slash commands for Spring Boot",
+      "version": "1.2.0",
       "author": {
         "name": "SegfaultSorcerer"
       },
