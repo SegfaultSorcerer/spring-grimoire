@@ -1,7 +1,7 @@
 {
   "name": "spring-grimoire",
-  "version": "1.1.0",
-  "description": "Curated Claude Code skills and hooks for Java/Spring Boot development. Code reviews, migration assistance, JPA auditing, security checks, test generation, and auto-formatting.",
+  "version": "1.2.0",
+  "description": "Curated Claude Code skills and hooks for Java/Spring Boot development. Code reviews, migration assistance, JPA auditing, security checks, config auditing, test generation, and auto-formatting.",
   "author": {
     "name": "SegfaultSorcerer",
     "url": "https://github.com/SegfaultSorcerer"
